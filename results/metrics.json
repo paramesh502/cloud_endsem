@@ -1,0 +1,37 @@
+{
+  "FF": {
+    "jobs_accepted": 5000,
+    "jobs_rejected": 0,
+    "avg_rfi": 0.9871,
+    "avg_utilization": 0.8793,
+    "active_nodes": 104,
+    "energy_kwh": 36.6722
+  },
+  "BFD": {
+    "jobs_accepted": 5000,
+    "jobs_rejected": 0,
+    "avg_rfi": 0.9844,
+    "avg_utilization": 0.8499,
+    "active_nodes": 132,
+    "energy_kwh": 45.6369
+  },
+  "DRF": {
+    "jobs_accepted": 5000,
+    "jobs_rejected": 0,
+    "avg_rfi": 0.2193,
+    "avg_utilization": 0.3918,
+    "active_nodes": 394,
+    "energy_kwh": 103.6156
+  },
+  "FAS": {
+    "jobs_accepted": 5000,
+    "jobs_rejected": 0,
+    "avg_rfi": 0.9822,
+    "avg_utilization": 0.8624,
+    "active_nodes": 112,
+    "energy_kwh": 38.7331,
+    "nodes_freed": 321,
+    "energy_before_kwh": 113.3522,
+    "energy_savings_pct": 65.83
+  }
+}
