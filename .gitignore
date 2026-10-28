@@ -17,5 +17,11 @@ venv/
 # Dataset (large files — don't commit)
 data/
 
+# Generated results
+results/
+
+# Kiro agent internals
+.agents/
+
 # Jupyter
 .ipynb_checkpoints/
