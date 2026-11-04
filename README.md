@@ -22,14 +22,20 @@ Four schedulers are implemented and compared:
 ```
 cloud_endsem/
 ├── src/
-│   ├── models.py         # Node and Job classes
-│   ├── loader.py         # Alibaba trace data parser
-│   ├── schedulers.py     # FF, BFD, DRF, FAS algorithms
-│   ├── consolidation.py  # Greedy all-or-nothing consolidation (Algorithm 2)
-│   ├── power.py          # Linear power model: P(u) = P_idle + (P_max - P_idle) * u
-│   └── evaluate.py       # RFI, utilization, energy metrics
-├── main.py               # Runs all 4 schedulers and prints comparison table
-├── plot_results.py       # Generates matplotlib bar charts
+│   ├── models.py             # Node and Job classes
+│   ├── loader.py             # Alibaba trace data parser
+│   ├── schedulers.py         # FF, BFD, DRF, FAS algorithms
+│   ├── consolidation.py      # Greedy all-or-nothing consolidation (Algorithm 2)
+│   ├── power.py              # Linear power model: P(u) = P_idle + (P_max - P_idle) * u
+│   └── evaluate.py           # RFI, utilization, energy metrics
+├── templates/
+│   └── index.html            # Single-page web UI
+├── static/
+│   ├── style.css             # Apple-style CSS
+│   └── app.js                # Chart.js rendering + API calls
+├── app.py                    # Flask web server
+├── main.py                   # CLI — runs all 4 schedulers and prints comparison table
+├── plot_results.py           # Generates matplotlib bar charts
 ├── requirements.txt
 └── README.md
 ```
@@ -40,7 +46,7 @@ cloud_endsem/
 
 Uses the **Alibaba Cluster Trace V2017** — a public production workload trace from Alibaba's cloud infrastructure (~1,313 machines, 12-hour period).
 
-Download it yourself:
+Download it:
 ```bash
 mkdir -p data
 curl -L -o data/alibaba-trace-2017.tar.gz \
@@ -63,14 +69,26 @@ pip install -r requirements.txt
 
 ---
 
-## Run
+## Run — Web UI (recommended)
 
 ```bash
-# Run simulation and print comparison table
-python main.py
+python3 app.py
+```
 
-# Generate bar charts (saved to results/)
-python plot_results.py
+Open **http://127.0.0.1:5000** in your browser.
+
+- Select job count (1000 / 2000 / 5000)
+- Click **Run Simulation**
+- View metric cards and bar charts for all 4 schedulers
+
+## Run — CLI
+
+```bash
+# Print comparison table in terminal
+python3 main.py
+
+# Save bar charts to results/
+python3 plot_results.py
 ```
 
 ---
@@ -93,7 +111,7 @@ score = RFI_after + w * (f_cpu + f_mem)
 - Node with **minimum score** is selected
 
 ### Greedy Consolidation
-All-or-nothing migration: if every job on a low-utilization node can be moved elsewhere, the node is powered off. Runs for up to 10 rounds.
+All-or-nothing migration: if every job on a low-utilization node can be moved elsewhere, the node is powered off. Runs up to 10 rounds.
 
 ### Power Model
 ```
