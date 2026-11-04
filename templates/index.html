@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FAS Simulator</title>
+  <link rel="stylesheet" href="/static/style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <span class="nav-title">FAS Simulator</span>
+    <span class="nav-subtitle">Fragmentation-Aware Scheduling</span>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <h1>Intelligent Cloud Resource Scheduling</h1>
+    <p>Simulate and compare FF, BFD, DRF, and FAS schedulers on Alibaba Cluster Trace 2017</p>
+    <div class="controls">
+      <label for="n-jobs" style="font-size:15px;color:#6e6e73;">Jobs to simulate</label>
+      <select id="n-jobs">
+        <option value="1000">1,000</option>
+        <option value="2000">2,000</option>
+        <option value="5000" selected>5,000</option>
+      </select>
+      <button class="btn-run" id="run-btn">Run Simulation</button>
+    </div>
+  </section>
+
+  <!-- LOADING -->
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+    <p>Running simulation… this may take 10–30 seconds</p>
+  </div>
+
+  <!-- ERROR -->
+  <div class="error-msg" id="error-msg"></div>
+
+  <!-- RESULTS -->
+  <div class="results" id="results">
+
+    <h2 class="section-title">Scheduler Metrics</h2>
+
+    <!-- METRIC CARDS -->
+    <div class="cards-grid">
+
+      <div class="card" id="card-FF">
+        <h3>FF</h3>
+        <div class="metrics-body"></div>
+      </div>
+
+      <div class="card" id="card-BFD">
+        <h3>BFD</h3>
+        <div class="metrics-body"></div>
+      </div>
+
+      <div class="card" id="card-DRF">
+        <h3>DRF</h3>
+        <div class="metrics-body"></div>
+      </div>
+
+      <div class="card card-fas" id="card-FAS">
+        <h3>FAS <span class="badge-fas">NEW</span></h3>
+        <div class="metrics-body"></div>
+      </div>
+
+    </div>
+
+    <!-- CHARTS -->
+    <h2 class="section-title">Performance Comparison</h2>
+    <div class="charts-grid">
+
+      <div class="chart-card">
+        <h4>Fragmentation Index (RFI)</h4>
+        <canvas id="chart-rfi"></canvas>
+      </div>
+
+      <div class="chart-card">
+        <h4>Average Utilization</h4>
+        <canvas id="chart-util"></canvas>
+      </div>
+
+      <div class="chart-card">
+        <h4>Energy Consumption (kWh)</h4>
+        <canvas id="chart-energy"></canvas>
+      </div>
+
+      <div class="chart-card">
+        <h4>Jobs Accepted vs Rejected</h4>
+        <canvas id="chart-jobs"></canvas>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    Based on Beena et al., IEEE OJCS 2026
+  </footer>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
