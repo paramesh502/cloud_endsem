@@ -153,7 +153,7 @@ def _rfi_score(node: Node, job: Job) -> float:
 
     Lower score = preferred node.
 
-    score = RFI_after - w * leftover_total
+    score = RFI_after + w * leftover_total
 
     where:
       f_c           = (cpu_left - job.cpu) / cpu_cap    (remaining CPU fraction)
@@ -173,7 +173,7 @@ def _rfi_score(node: Node, job: Job) -> float:
     leftover_total = f_c + f_m
 
     w = 2.0 if job.is_short else 0.5
-    return rfi_after - w * leftover_total
+    return rfi_after + w * leftover_total
 
 
 def schedule_fas(
