@@ -1,57 +1,46 @@
-"""
-models.py
----------
-Dataclasses for Node and Job used across the simulation.
-"""
+# models.py
+# Core data structures for the simulation — a Node (physical server)
+# and a Job (batch task to be scheduled).
 
-from dataclasses import dataclass, field
-from typing import List
+from dataclasses import dataclass
 
 
 @dataclass
 class Job:
-    """Represents a batch task / workload to be scheduled."""
     job_id: str
-    cpu: float          # cores demanded
-    mem: float          # normalised memory demanded (0-1 scale)
-    duration: float     # seconds
-    is_short: bool      # True if duration <= median duration
+    cpu: float      # cores requested
+    mem: float      # normalised memory (0-1 scale)
+    duration: float # seconds from create to finish
+    is_short: bool  # True if duration is below the median
 
 
 @dataclass
 class Node:
-    """Represents a physical server in the cluster."""
     machine_id: str
-    cpu_cap: float      # total CPU cores
-    mem_cap: float      # total normalised memory (0-1 scale)
-    cpu_left: float     # remaining CPU after current placements
-    mem_left: float     # remaining memory after current placements
-    active: bool = False  # True when at least one job is placed
-
-    # ------------------------------------------------------------------ #
-    # Scheduling primitives
-    # ------------------------------------------------------------------ #
+    cpu_cap: float   # total CPU cores on this machine
+    mem_cap: float   # total normalised memory
+    cpu_left: float  # how much CPU is still free
+    mem_left: float  # how much memory is still free
+    active: bool = False  # flipped to True the moment a job lands here
 
     def can_fit(self, job: Job) -> bool:
-        """Return True if this node has enough resources for the job."""
+        # Reject degenerate nodes and check both dimensions
         if self.cpu_cap <= 0 or self.mem_cap <= 0:
             return False
         return self.cpu_left >= job.cpu and self.mem_left >= job.mem
 
     def place(self, job: Job) -> None:
-        """Allocate resources for the job and mark node active."""
         self.cpu_left -= job.cpu
         self.mem_left -= job.mem
         self.active = True
 
     def remove(self, job: Job) -> None:
-        """Release resources occupied by the job."""
+        # Called during consolidation rollback or migration
         self.cpu_left += job.cpu
         self.mem_left += job.mem
-        # active flag is managed by the caller (consolidation) when needed
 
     def utilization(self):
-        """Return (cpu_util_fraction, mem_util_fraction) for this node."""
+        # Returns (cpu_fraction_used, mem_fraction_used)
         cpu_util = (self.cpu_cap - self.cpu_left) / self.cpu_cap if self.cpu_cap > 0 else 0.0
         mem_util = (self.mem_cap - self.mem_left) / self.mem_cap if self.mem_cap > 0 else 0.0
         return cpu_util, mem_util

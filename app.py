@@ -1,3 +1,8 @@
+# app.py
+# Flask server for the FAS simulation web UI.
+# Serves the single-page frontend and exposes /api/run which runs
+# all four schedulers and returns JSON results.
+
 import copy
 import json
 import os
@@ -8,14 +13,15 @@ from flask import Flask, render_template, request, jsonify
 ROOT = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, ROOT)
 
-from src.loader import load_data
+from src.loader     import load_data
 from src.schedulers import schedule_ff, schedule_bfd, schedule_drf, schedule_fas
-from src.evaluate import compute_metrics
+from src.evaluate   import compute_metrics
 
 app = Flask(__name__)
 
 DATA_DIR = os.path.join(ROOT, "data", "alibaba-trace-2017")
 
+# Cache the loaded dataset so repeated runs don't re-parse the CSVs
 _cache = {"nodes": None, "jobs": None, "n_jobs": None}
 
 
@@ -23,7 +29,7 @@ def get_data(n_jobs):
     if _cache["nodes"] is None or _cache["n_jobs"] != n_jobs:
         nodes, jobs = load_data(DATA_DIR, n_jobs=n_jobs)
         _cache["nodes"] = nodes
-        _cache["jobs"] = jobs
+        _cache["jobs"]  = jobs
         _cache["n_jobs"] = n_jobs
     return _cache["nodes"], _cache["jobs"]
 
@@ -40,13 +46,13 @@ def index():
 @app.route("/api/run", methods=["POST"])
 def api_run():
     try:
-        body = request.get_json(silent=True) or {}
+        body   = request.get_json(silent=True) or {}
         n_jobs = int(body.get("n_jobs", 5000))
-
         nodes, jobs = get_data(n_jobs)
+
         results = {}
 
-        # First Fit
+        # First-Fit
         ff_nodes = fresh_nodes(nodes)
         _, _, ff_acc, ff_rej = schedule_ff(jobs, ff_nodes)
         m = compute_metrics(ff_nodes, ff_acc, ff_rej)
@@ -54,7 +60,7 @@ def api_run():
         m["energy_savings_pct"] = "N/A"
         results["FF"] = m
 
-        # Best Fit Decreasing
+        # Best-Fit Decreasing
         bfd_nodes = fresh_nodes(nodes)
         _, _, bfd_acc, bfd_rej = schedule_bfd(jobs, bfd_nodes)
         m = compute_metrics(bfd_nodes, bfd_acc, bfd_rej)
@@ -70,15 +76,14 @@ def api_run():
         m["energy_savings_pct"] = "N/A"
         results["DRF"] = m
 
-        # Fragmentation-Aware Scheduling
+        # Fragmentation-Aware Scheduling (+ consolidation)
         fas_nodes = fresh_nodes(nodes)
-        pl, active, acc, rej, freed, energy_before, energy_after = schedule_fas(jobs, fas_nodes)
+        _, _, acc, rej, freed, energy_before, energy_after = schedule_fas(jobs, fas_nodes)
         m = compute_metrics(fas_nodes, acc, rej)
         m["nodes_freed"] = freed
         m["energy_savings_pct"] = (
             round((energy_before - energy_after) / energy_before * 100, 2)
-            if energy_before > 0
-            else 0.0
+            if energy_before > 0 else 0.0
         )
         results["FAS"] = m
 
